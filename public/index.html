@@ -1,862 +1,597 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WiFi Speed Tester - Accurate Line Benchmark</title>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-  <style>
-    :root {
-      --bg: #030712;
-      --card-bg: rgba(15, 23, 42, 0.85);
-      --border: rgba(255, 255, 255, 0.08);
-      --cyan: #00f2fe;
-      --blue: #38bdf8;
-      --purple: #a855f7;
-      --green: #10b981;
-      --amber: #f59e0b;
-      --red: #ef4444;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#030712" />
+<title>WiFi Speed Tester</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+  :root{
+    --bg:#030712; --card:rgba(15,23,42,.9); --border:rgba(255,255,255,.09);
+    --cyan:#00f2fe; --blue:#38bdf8; --purple:#a855f7; --green:#10b981;
+    --amber:#f59e0b; --red:#ef4444; --text:#f8fafc; --muted:#94a3b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:radial-gradient(circle at 50% 0%,#172554 0%,#030712 70%) fixed;
+    color:var(--text); min-height:100vh; min-height:100dvh;
+    padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+  }
+  .app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-    body {
-      background: radial-gradient(circle at 50% 0%, #172554 0%, #030712 100%);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 24px;
-    }
+  /* Header */
+  header{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:12px 14px;background:var(--card);border:1px solid var(--border);
+    border-radius:18px;backdrop-filter:blur(16px);position:relative;z-index:30;
+  }
+  .brand{display:flex;align-items:center;gap:10px;min-width:0}
+  .brand-icon{width:40px;height:40px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 18px rgba(0,242,254,.35)}
+  .brand h1{font-size:18px;font-weight:800;background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+  .brand p{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dots-btn{
+    width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--border);
+    background:rgba(255,255,255,.06);color:#fff;font-size:22px;font-weight:800;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .dots-btn:active{background:rgba(255,255,255,.14)}
 
-    .container { max-width: 1440px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-    
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 18px 24px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      backdrop-filter: blur(18px);
-      flex-wrap: wrap;
-      gap: 14px;
-    }
+  /* Dropdown menu */
+  .menu{
+    position:absolute;top:calc(100% + 8px);right:0;width:min(280px,86vw);
+    background:#0b1222;border:1px solid var(--border);border-radius:16px;
+    box-shadow:0 18px 40px rgba(0,0,0,.6);padding:6px;display:none;
+  }
+  .menu.open{display:block}
+  .menu button{
+    width:100%;display:flex;align-items:center;gap:12px;padding:13px 12px;
+    background:none;border:none;color:#fff;font-size:14px;font-weight:600;text-align:left;
+    border-radius:12px;cursor:pointer;
+  }
+  .menu button:active,.menu button:hover{background:rgba(255,255,255,.08)}
+  .menu .ic{width:28px;text-align:center;font-size:18px}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:20}
+  .backdrop.show{display:block}
 
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .brand-icon {
-      width: 44px; height: 44px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 0 20px rgba(0, 242, 254, 0.35);
-    }
-    .brand-title h1 { font-size: 22px; font-weight: 800; background: linear-gradient(90deg, #fff, var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .brand-title p { font-size: 12px; color: var(--muted); }
+  /* Main card */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .gauge-wrap{display:flex;flex-direction:column;align-items:center;text-align:center}
+  canvas#speedGauge{width:100%;max-width:340px;aspect-ratio:340/210;height:auto;display:block}
+  .speed-number{
+    font-family:'JetBrains Mono',monospace;font-size:clamp(48px,16vw,66px);font-weight:800;letter-spacing:-2px;
+    margin-top:clamp(-40px,-9vw,-30px);
+    background:linear-gradient(180deg,#fff,#93c5fd);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .unit{font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-top:-2px}
+  .speed-phase{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin:6px 0 16px;min-height:16px}
 
-    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .btn-action {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 12px;
-      font-size: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .btn-action:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--cyan); }
+  .btn-test{
+    width:100%;padding:17px;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;
+    background:linear-gradient(135deg,var(--cyan),var(--blue));color:#030712;
+    box-shadow:0 0 25px rgba(0,242,254,.35);letter-spacing:.5px;transition:transform .15s;
+  }
+  .btn-test:active:not(:disabled){transform:scale(.98)}
+  .btn-test:disabled{opacity:.55;cursor:not-allowed}
 
-    .security-bar {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    @media (max-width: 900px) { .security-bar { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .security-bar { grid-template-columns: 1fr; } }
+  .metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:12px}
+  .metric{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;min-width:0}
+  .metric small{display:block;font-size:9.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;letter-spacing:.3px}
+  .metric strong{font-family:'JetBrains Mono',monospace;font-size:clamp(12px,3.8vw,15px);color:#fff;white-space:nowrap}
 
-    .sec-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 18px;
-      backdrop-filter: blur(14px);
-    }
-    .sec-card small { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
-    .sec-card strong { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #fff; }
+  /* Bottom sheet */
+  .sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    background:#0a1020;border-top:1px solid var(--border);
+    border-radius:24px 24px 0 0;max-height:88vh;max-height:88dvh;
+    transform:translateY(105%);transition:transform .28s ease;
+    display:flex;flex-direction:column;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .sheet.open{transform:translateY(0)}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 10px}
+  .sheet-head h3{font-size:16px;font-weight:700}
+  .sheet-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.06);color:#fff;font-size:16px;cursor:pointer}
+  .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 18px 22px;max-width:520px;width:100%;margin:0 auto}
+  .panel{display:none}
+  .panel.active{display:block}
 
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 20px;
-    }
-    @media (max-width: 1100px) { .dashboard-grid { grid-template-columns: 1fr; } }
+  .badge{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(0,242,254,.1);color:var(--cyan);border:1px solid rgba(0,242,254,.2);display:inline-block;margin-bottom:10px}
 
-    .glass-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 22px;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
+  .ai-box{background:linear-gradient(135deg,rgba(168,85,247,.14),rgba(0,242,254,.08));border:1px solid rgba(168,85,247,.3);border-radius:16px;padding:16px}
+  .ai-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .ai-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:17px}
+  .ai-text{font-size:13.5px;line-height:1.65;color:#e2e8f0}
 
-    .gauge-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-    canvas#speedGauge { width: 340px; height: 210px; }
+  .throttle{border-radius:12px;padding:14px;font-size:13px;display:flex;justify-content:space-between;gap:10px;align-items:center;line-height:1.5}
+  .throttle-clean{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#6ee7b7}
+  .throttle-warn{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#fde68a}
 
-    .speed-number {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 64px;
-      font-weight: 800;
-      letter-spacing: -2px;
-      margin-top: -38px;
-      background: linear-gradient(180deg, #ffffff, #93c5fd);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .speed-phase {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin-bottom: 18px;
-    }
+  .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .mini{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center}
+  .mini h4{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .mini span{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:700;color:#fff}
 
-    .btn-test {
-      width: 100%;
-      padding: 16px;
-      border-radius: 14px;
-      border: none;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--cyan), var(--blue));
-      color: #030712;
-      box-shadow: 0 0 25px rgba(0, 242, 254, 0.35);
-      transition: all 0.25s ease;
-      letter-spacing: 0.5px;
-    }
-    .btn-test:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 242, 254, 0.6); }
-    .btn-test:disabled { opacity: 0.5; cursor: not-allowed; }
+  .room-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .room-tag{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px;display:flex;gap:8px;align-items:center}
+  .btn-outline{background:none;border:1px dashed var(--cyan);color:var(--cyan);padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%}
 
-    .metric-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      width: 100%;
-      margin-top: 14px;
-    }
-    .metric-box {
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 6px;
-      text-align: center;
-    }
-    .metric-box small { font-size: 10px; color: var(--muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
-    .metric-box strong { font-family: 'JetBrains Mono', monospace; font-size: 16px; color: #fff; }
+  .info-row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .info-row:last-child{border-bottom:none}
+  .info-row span{color:var(--muted)}
+  .info-row strong{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;word-break:break-word}
 
-    .right-col { display: flex; flex-direction: column; gap: 20px; }
+  .pill-green{color:var(--green)} .pill-amber{color:var(--amber)} .pill-red{color:var(--red)}
 
-    .card-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    .card-title h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-    .badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(0, 242, 254, 0.1);
-      color: var(--cyan);
-      border: 1px solid rgba(0, 242, 254, 0.2);
-    }
+  #shareableCard{
+    width:480px;background:linear-gradient(145deg,#090e1a,#131c33);border:2px solid rgba(0,242,254,.4);
+    border-radius:24px;padding:28px;color:#fff;display:none;position:fixed;top:-9999px;left:-9999px;
+  }
+  .tier{display:inline-block;padding:6px 14px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#030712;border-radius:20px;font-weight:800;font-size:13px}
 
-    .ai-doctor-box {
-      background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(0, 242, 254, 0.08));
-      border: 1px solid rgba(168, 85, 247, 0.3);
-      border-radius: 16px;
-      padding: 18px;
-      position: relative;
-    }
-    .ai-doctor-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-    .ai-avatar {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
-    .ai-doctor-text {
-      font-size: 13px;
-      line-height: 1.6;
-      color: #e2e8f0;
-    }
-
-    .cdn-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    @media (max-width: 900px) { .cdn-grid { grid-template-columns: repeat(2, 1fr); } }
-    .cdn-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      text-align: center;
-    }
-    .cdn-card h4 { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-    .cdn-card span { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #fff; }
-
-    .throttling-box {
-      border-radius: 12px;
-      padding: 14px 16px;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .throttle-clean { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25); color: #6ee7b7; }
-    .throttle-warn { background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); color: #fde68a; }
-
-    .room-finder-box {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-    .room-tag {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 8px 12px;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    #shareableCard {
-      width: 480px;
-      background: linear-gradient(145deg, #090e1a, #131c33);
-      border: 2px solid rgba(0, 242, 254, 0.4);
-      border-radius: 24px;
-      padding: 28px;
-      color: #fff;
-      display: none;
-      position: absolute;
-      top: -9999px;
-      left: -9999px;
-    }
-    .card-badge-tier {
-      display: inline-block;
-      padding: 6px 14px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      color: #030712;
-      border-radius: 20px;
-      font-weight: 800;
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-
-    .pill-green { color: var(--green); font-weight: 700; }
-    .pill-amber { color: var(--amber); font-weight: 700; }
-    .pill-red { color: var(--red); font-weight: 700; }
-  </style>
+  @media (min-width:700px){ body{padding-top:28px} }
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="brand-icon">⚡</div>
-        <div class="brand-title">
-          <h1>WiFi Speed Tester</h1>
-          <p>Real-World Multi-Socket Precision Network Analyzer</p>
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <button class="btn-action" id="shareCardBtn">📸 Generate Speed Card</button>
-      </div>
-    </header>
-
-    <div class="security-bar">
-      <div class="sec-card">
-        <small>TESTING PIPELINE</small>
-        <strong id="infraAudit" style="color: var(--cyan);">Real Internet Anycast Core</strong>
-      </div>
-      <div class="sec-card">
-        <small>CONNECTION VERIFICATION</small>
-        <strong id="shadowStatus" style="color: var(--green);">Physical WiFi / Wireline</strong>
-      </div>
-      <div class="sec-card">
-        <small>MEASUREMENT ACCURACY</small>
-        <strong id="protoAudit">Direct Byte Stream (RFC-6349)</strong>
-      </div>
-      <div class="sec-card">
-        <small>PUBLIC IP & ISP</small>
-        <strong id="clientIpDisplay">Detecting...</strong>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div style="min-width:0">
+        <h1>WiFi Speed Tester</h1>
+        <p>Real-World Network Analyzer</p>
       </div>
     </div>
+    <button class="dots-btn" id="dotsBtn" aria-label="Menu" aria-expanded="false">⋮</button>
 
-    <div class="dashboard-grid">
-      <div class="glass-card gauge-wrap">
-        <canvas id="speedGauge" width="340" height="210"></canvas>
-        <div class="speed-number" id="speedNumber">0.0</div>
-        <div class="speed-phase" id="speedPhase">IDLE / READY</div>
-
-        <button class="btn-test" id="startBtn">START ACCURATE SPEED TEST</button>
-
-        <div class="metric-row">
-          <div class="metric-box">
-            <small>Idle Latency</small>
-            <strong id="idlePing">-- ms</strong>
-          </div>
-          <div class="metric-box">
-            <small>Download</small>
-            <strong id="downloadSpeed">-- Mbps</strong>
-          </div>
-          <div class="metric-box">
-            <small>Upload</small>
-            <strong id="uploadSpeed">-- Mbps</strong>
-          </div>
-        </div>
-
-        <div class="metric-row">
-          <div class="metric-box">
-            <small>Loaded Latency</small>
-            <strong id="loadedPing">-- ms</strong>
-          </div>
-          <div class="metric-box">
-            <small>Jitter</small>
-            <strong id="jitterVal">-- ms</strong>
-          </div>
-          <div class="metric-box">
-            <small>Bufferbloat</small>
-            <strong id="bloatGrade" style="color: var(--green);">--</strong>
-          </div>
-        </div>
-
-        <div style="width: 100%; margin-top: 16px; text-align: left;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-size: 11px; color: var(--muted); font-weight: 700;">🏠 ROOM COVERAGE TRACKER (DEAD-ZONE FINDER)</span>
-            <button id="addRoomBtn" style="background: none; border: 1px dashed var(--cyan); color: var(--cyan); padding: 2px 8px; border-radius: 6px; font-size: 11px; cursor: pointer;">+ Pin Current Room</button>
-          </div>
-          <div class="room-finder-box" id="roomPills">
-            <div class="room-tag"><span>Main Router Area</span><strong style="color: var(--green);">100%</strong></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="right-col">
-        <div class="ai-doctor-box">
-          <div class="ai-doctor-header">
-            <div class="ai-avatar">🤖</div>
-            <div>
-              <h4 style="font-size: 14px; font-weight: 700;">AI Network Diagnostic Doctor</h4>
-              <p style="font-size: 11px; color: var(--muted);">Real-World Root Cause Analysis</p>
-            </div>
-          </div>
-          <div class="ai-doctor-text" id="aiDoctorOutput">
-            Ready to test. Is test mein data aapke computer ki RAM se nahi balki bahar internet se real chunks transfer karega taaki accurate result aaye.
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">
-            <h3><span>🛡️</span> ISP Fast-Lane & Net Neutrality Audit</h3>
-            <span class="badge" id="throttleBadge">Pending</span>
-          </div>
-          <div id="throttleNotice" class="throttling-box throttle-clean">
-            <span>Awaiting test to analyze packet prioritization.</span>
-            <strong id="throttleDiff">--</strong>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">
-            <h3><span>🌐</span> Multi-CDN Edge Latency Radar</h3>
-            <span class="badge">Live Test</span>
-          </div>
-          <div class="cdn-grid">
-            <div class="cdn-card">
-              <h4>Cloudflare Core</h4>
-              <span id="pingCf">-- ms</span>
-            </div>
-            <div class="cdn-card">
-              <h4>Google Public</h4>
-              <span id="pingGg">-- ms</span>
-            </div>
-            <div class="cdn-card">
-              <h4>AWS Edge</h4>
-              <span id="pingAws">-- ms</span>
-            </div>
-            <div class="cdn-card">
-              <h4>Microsoft Azure</h4>
-              <span id="pingAz">-- ms</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">
-            <h3><span>💼</span> Application Suitability</h3>
-            <span class="badge">Live Rating</span>
-          </div>
-          <div class="cdn-grid">
-            <div class="cdn-card">
-              <h4>Zoom / Teams</h4>
-              <span id="wfhZoom" class="pill-green">Ready</span>
-            </div>
-            <div class="cdn-card">
-              <h4>VPN Stability</h4>
-              <span id="wfhVpn" style="color: var(--cyan);">Direct</span>
-            </div>
-            <div class="cdn-card">
-              <h4>Git / Repo Push</h4>
-              <span id="wfhGit" class="pill-green">Good</span>
-            </div>
-            <div class="cdn-card">
-              <h4>Gaming (Low Jitter)</h4>
-              <span id="gameTier" class="pill-green">Calculated</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-title">
-            <h3><span>📈</span> Bandwidth Saturation Curve</h3>
-            <span class="badge" id="chartStage">Standby</span>
-          </div>
-          <div style="height: 180px; position: relative;">
-            <canvas id="speedChart"></canvas>
-          </div>
-        </div>
-      </div>
+    <div class="menu" id="menu">
+      <button data-panel="pAi"><span class="ic">🤖</span>AI Network Doctor</button>
+      <button data-panel="pIsp"><span class="ic">🛡️</span>ISP Fast-Lane Audit</button>
+      <button data-panel="pCdn"><span class="ic">🌐</span>Multi-CDN Latency Radar</button>
+      <button data-panel="pApps"><span class="ic">💼</span>Application Suitability</button>
+      <button data-panel="pChart"><span class="ic">📈</span>Bandwidth Curve</button>
+      <button data-panel="pRoom"><span class="ic">🏠</span>Room Coverage Tracker</button>
+      <button data-panel="pNet"><span class="ic">📡</span>Connection Details</button>
+      <button id="shareCardBtn"><span class="ic">📸</span>Generate Speed Card</button>
     </div>
+  </header>
+
+  <!-- FRONT PAGE: tester -->
+  <main class="card gauge-wrap">
+    <canvas id="speedGauge"></canvas>
+    <div class="speed-number" id="speedNumber">0.0</div>
+    <div class="unit">MBPS</div>
+    <div class="speed-phase" id="speedPhase">IDLE / READY</div>
+
+    <button class="btn-test" id="startBtn">START SPEED TEST</button>
+
+    <div class="metric-row">
+      <div class="metric"><small>Idle Ping</small><strong id="idlePing">-- ms</strong></div>
+      <div class="metric"><small>Download</small><strong id="downloadSpeed">--</strong></div>
+      <div class="metric"><small>Upload</small><strong id="uploadSpeed">--</strong></div>
+    </div>
+    <div class="metric-row">
+      <div class="metric"><small>Loaded Ping</small><strong id="loadedPing">-- ms</strong></div>
+      <div class="metric"><small>Jitter</small><strong id="jitterVal">-- ms</strong></div>
+      <div class="metric"><small>Bufferbloat</small><strong id="bloatGrade">--</strong></div>
+    </div>
+  </main>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<!-- Bottom sheet with all extra points -->
+<section class="sheet" id="sheet" aria-hidden="true">
+  <div class="sheet-head">
+    <h3 id="sheetTitle">Details</h3>
+    <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
   </div>
+  <div class="sheet-body">
 
-  <div id="shareableCard">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-      <h2 style="font-size: 20px; font-weight: 800; background: linear-gradient(90deg, #00f2fe, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">⚡ WiFi Speed Tester</h2>
-      <span class="card-badge-tier" id="cardTier">FAST BROADBAND</span>
+    <div class="panel" id="pAi" data-title="🤖 AI Network Doctor">
+      <div class="ai-box">
+        <div class="ai-head">
+          <div class="ai-avatar">🤖</div>
+          <div>
+            <h4 style="font-size:14px;font-weight:700">AI Network Diagnostic Doctor</h4>
+            <p style="font-size:11px;color:var(--muted)">Real-World Root Cause Analysis</p>
+          </div>
+        </div>
+        <div class="ai-text" id="aiDoctorOutput">Ready to test. Is test mein data aapke computer ki RAM se nahi balki bahar internet se real chunks transfer karega taaki accurate result aaye.</div>
+      </div>
     </div>
-    <div style="text-align: center; margin-bottom: 24px;">
-      <div style="font-size: 64px; font-weight: 800; font-family: 'JetBrains Mono';" id="cardDown">0.0</div>
-      <div style="font-size: 14px; letter-spacing: 2px; color: #00f2fe; text-transform: uppercase;">DOWNLOAD MBPS</div>
+
+    <div class="panel" id="pIsp" data-title="🛡️ ISP Fast-Lane Audit">
+      <span class="badge" id="throttleBadge">Pending</span>
+      <div id="throttleNotice" class="throttle throttle-clean">
+        <span>Awaiting test to analyze packet prioritization.</span>
+        <strong id="throttleDiff">--</strong>
+      </div>
     </div>
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; background: rgba(255,255,255,0.05); padding: 14px; border-radius: 14px; margin-bottom: 20px; text-align: center;">
-      <div><small style="color: #94a3b8; font-size: 11px;">UPLOAD</small><br><strong id="cardUp" style="font-family: 'JetBrains Mono';">--</strong></div>
-      <div><small style="color: #94a3b8; font-size: 11px;">PING</small><br><strong id="cardPing" style="font-family: 'JetBrains Mono';">--</strong></div>
-      <div><small style="color: #94a3b8; font-size: 11px;">BUFFERBLOAT</small><br><strong id="cardBloat" style="color: #10b981;">A+</strong></div>
+
+    <div class="panel" id="pCdn" data-title="🌐 Multi-CDN Latency Radar">
+      <span class="badge">Live Test</span>
+      <div class="grid2">
+        <div class="mini"><h4>Cloudflare</h4><span id="pingCf">-- ms</span></div>
+        <div class="mini"><h4>Google</h4><span id="pingGg">-- ms</span></div>
+        <div class="mini"><h4>AWS Edge</h4><span id="pingAws">-- ms</span></div>
+        <div class="mini"><h4>Microsoft Azure</h4><span id="pingAz">-- ms</span></div>
+      </div>
     </div>
-    <div style="font-size: 12px; color: #94a3b8; display: flex; justify-content: space-between;">
-      <span id="cardIsp">ISP: Detecting</span>
-      <span>Verified Real-Line Test</span>
+
+    <div class="panel" id="pApps" data-title="💼 Application Suitability">
+      <span class="badge">Live Rating</span>
+      <div class="grid2">
+        <div class="mini"><h4>Zoom / Teams</h4><span id="wfhZoom">--</span></div>
+        <div class="mini"><h4>VPN Stability</h4><span id="wfhVpn">--</span></div>
+        <div class="mini"><h4>Git / Repo Push</h4><span id="wfhGit">--</span></div>
+        <div class="mini"><h4>Gaming</h4><span id="gameTier">--</span></div>
+      </div>
     </div>
+
+    <div class="panel" id="pChart" data-title="📈 Bandwidth Saturation Curve">
+      <span class="badge" id="chartStage">Standby</span>
+      <div style="height:220px;position:relative"><canvas id="speedChart"></canvas></div>
+    </div>
+
+    <div class="panel" id="pRoom" data-title="🏠 Room Coverage Tracker">
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px">Alag-alag kamron mein jaakar test chalayein, phir "Pin Current Room" dabayein. Isse dead-zone pata chalta hai.</p>
+      <button class="btn-outline" id="addRoomBtn">+ Pin Current Room</button>
+      <div class="room-tags" id="roomPills">
+        <div class="room-tag"><span>Main Router Area</span><strong style="color:var(--green)">100%</strong></div>
+      </div>
+    </div>
+
+    <div class="panel" id="pNet" data-title="📡 Connection Details">
+      <div class="info-row"><span>Testing Pipeline</span><strong style="color:var(--cyan)">Real Internet Anycast</strong></div>
+      <div class="info-row"><span>Connection</span><strong style="color:var(--green)">Physical WiFi / Wireline</strong></div>
+      <div class="info-row"><span>Measurement</span><strong>Direct Byte Stream</strong></div>
+      <div class="info-row"><span>Public IP &amp; ISP</span><strong id="clientIpDisplay">Detecting...</strong></div>
+    </div>
+
   </div>
+</section>
 
-  <script>
-    const chartCtx = document.getElementById('speedChart').getContext('2d');
-    const speedChart = new Chart(chartCtx, {
-      type: 'line',
-      data: {
-        labels: Array.from({ length: 30 }, (_, i) => `${i + 1}s`),
-        datasets: [{
-          label: 'Mbps',
-          data: Array(30).fill(0),
-          borderColor: '#00f2fe',
-          backgroundColor: 'rgba(0, 242, 254, 0.08)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2,
-          pointRadius: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 100 },
-        scales: {
-          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b' } },
-          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#64748b' }, beginAtZero: true }
-        },
-        plugins: { legend: { display: false } }
-      }
-    });
+<!-- Hidden share card -->
+<div id="shareableCard">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h2 style="font-size:20px;font-weight:800;color:#00f2fe">⚡ WiFi Speed Tester</h2>
+    <span class="tier" id="cardTier">STANDARD TIER</span>
+  </div>
+  <div style="text-align:center;margin-bottom:24px">
+    <div style="font-size:64px;font-weight:800;font-family:'JetBrains Mono'" id="cardDown">0.0</div>
+    <div style="font-size:14px;letter-spacing:2px;color:#00f2fe;text-transform:uppercase">DOWNLOAD MBPS</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:rgba(255,255,255,.05);padding:14px;border-radius:14px;margin-bottom:20px;text-align:center">
+    <div><small style="color:#94a3b8;font-size:11px">UPLOAD</small><br><strong id="cardUp" style="font-family:'JetBrains Mono'">--</strong></div>
+    <div><small style="color:#94a3b8;font-size:11px">PING</small><br><strong id="cardPing" style="font-family:'JetBrains Mono'">--</strong></div>
+    <div><small style="color:#94a3b8;font-size:11px">BUFFERBLOAT</small><br><strong id="cardBloat" style="color:#10b981">--</strong></div>
+  </div>
+  <div style="font-size:12px;color:#94a3b8;display:flex;justify-content:space-between">
+    <span id="cardIsp">ISP: Detecting</span><span>Verified Real-Line Test</span>
+  </div>
+</div>
 
-    const gaugeCanvas = document.getElementById('speedGauge');
-    const gCtx = gaugeCanvas.getContext('2d');
+<script>
+/* ---------- Menu + bottom sheet ---------- */
+const $ = id => document.getElementById(id);
+const menu = $('menu'), dotsBtn = $('dotsBtn'), backdrop = $('backdrop'), sheet = $('sheet');
 
-    function drawGauge(speed, maxLimit = 100) {
-      const w = gaugeCanvas.width;
-      const h = gaugeCanvas.height;
-      gCtx.clearRect(0, 0, w, h);
+function closeMenu(){ menu.classList.remove('open'); dotsBtn.setAttribute('aria-expanded','false'); if(!sheet.classList.contains('open')) backdrop.classList.remove('show'); }
+function openMenu(){ menu.classList.add('open'); dotsBtn.setAttribute('aria-expanded','true'); backdrop.classList.add('show'); }
+function closeSheet(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); backdrop.classList.remove('show'); }
 
-      const cx = w / 2;
-      const cy = h - 25;
-      const r = 115;
+function openPanel(id){
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const p = $(id); p.classList.add('active');
+  $('sheetTitle').innerText = p.dataset.title;
+  closeMenu();
+  sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); backdrop.classList.add('show');
+  $('sheet').querySelector('.sheet-body').scrollTop = 0;
+  if(id === 'pChart') setTimeout(() => speedChart.resize(), 300);
+}
 
-      gCtx.beginPath();
-      gCtx.arc(cx, cy, r, Math.PI * 0.82, Math.PI * 2.18);
-      gCtx.lineWidth = 14;
-      gCtx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
-      gCtx.lineCap = 'round';
-      gCtx.stroke();
+dotsBtn.addEventListener('click', e => { e.stopPropagation(); menu.classList.contains('open') ? closeMenu() : openMenu(); });
+menu.querySelectorAll('button[data-panel]').forEach(b => b.addEventListener('click', () => openPanel(b.dataset.panel)));
+$('sheetClose').addEventListener('click', closeSheet);
+backdrop.addEventListener('click', () => { closeMenu(); closeSheet(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeMenu(); closeSheet(); } });
 
-      const clamped = Math.min(Math.max(speed, 0), maxLimit);
-      const pct = clamped / maxLimit;
-      const endAngle = (Math.PI * 0.82) + (pct * (Math.PI * 1.36));
+/* ---------- Chart ---------- */
+const speedChart = new Chart($('speedChart').getContext('2d'), {
+  type:'line',
+  data:{ labels:Array.from({length:30},(_,i)=>`${i+1}`), datasets:[{
+    label:'Mbps', data:Array(30).fill(0), borderColor:'#00f2fe', backgroundColor:'rgba(0,242,254,.08)',
+    fill:true, tension:.35, borderWidth:2, pointRadius:0 }]},
+  options:{
+    responsive:true, maintainAspectRatio:false, animation:{duration:100},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b',maxTicksLimit:6}},
+      y:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#64748b'},beginAtZero:true}
+    },
+    plugins:{legend:{display:false}}
+  }
+});
 
-      const grad = gCtx.createLinearGradient(0, 0, w, 0);
-      grad.addColorStop(0, '#00f2fe');
-      grad.addColorStop(0.6, '#38bdf8');
-      grad.addColorStop(1, '#a855f7');
+/* ---------- Responsive gauge ---------- */
+const gaugeCanvas = $('speedGauge'), gCtx = gaugeCanvas.getContext('2d');
+const GW = 340, GH = 210;
+const dpr = Math.min(window.devicePixelRatio || 1, 3);
+gaugeCanvas.width = GW * dpr; gaugeCanvas.height = GH * dpr;
+gCtx.setTransform(dpr,0,0,dpr,0,0);
 
-      gCtx.beginPath();
-      gCtx.arc(cx, cy, r, Math.PI * 0.82, endAngle);
-      gCtx.lineWidth = 14;
-      gCtx.strokeStyle = grad;
-      gCtx.lineCap = 'round';
-      gCtx.stroke();
+function drawGauge(speed, maxLimit = 100){
+  gCtx.clearRect(0,0,GW,GH);
+  const cx = GW/2, cy = GH-25, r = 115;
+  gCtx.lineCap = 'round'; gCtx.lineWidth = 14;
+  gCtx.beginPath(); gCtx.arc(cx,cy,r,Math.PI*.82,Math.PI*2.18);
+  gCtx.strokeStyle = 'rgba(255,255,255,.07)'; gCtx.stroke();
+
+  const pct = Math.min(Math.max(speed,0),maxLimit)/maxLimit;
+  const end = Math.PI*.82 + pct*(Math.PI*1.36);
+  const grad = gCtx.createLinearGradient(0,0,GW,0);
+  grad.addColorStop(0,'#00f2fe'); grad.addColorStop(.6,'#38bdf8'); grad.addColorStop(1,'#a855f7');
+  gCtx.beginPath(); gCtx.arc(cx,cy,r,Math.PI*.82,end);
+  gCtx.strokeStyle = grad; gCtx.stroke();
+}
+drawGauge(0);
+
+/* ---------- Network info ---------- */
+let detectedIsp = 'Broadband / WiFi';
+async function loadNetworkIntel(){
+  try{
+    const res = await fetch('/api/network-details');
+    if(res.ok){
+      const d = await res.json();
+      detectedIsp = d.provider || 'Broadband ISP';
+      $('clientIpDisplay').innerText = `${d.client_ip} (${detectedIsp})`;
+      return;
     }
-    drawGauge(0);
+  }catch(e){}
+  try{
+    const d = await (await fetch('https://ipapi.co/json/')).json();
+    detectedIsp = d.org || d.asn || 'Broadband';
+    $('clientIpDisplay').innerText = `${d.ip} (${detectedIsp})`;
+  }catch(err){
+    $('clientIpDisplay').innerText = 'Unavailable';
+  }
+}
+loadNetworkIntel();
 
-    let detectedIsp = 'Broadband / WiFi';
-    async function loadNetworkIntel() {
-      try {
-        const res = await fetch('/api/network-details');
-        if (res.ok) {
-          const data = await res.json();
-          detectedIsp = data.provider || 'Broadband ISP';
-          document.getElementById('clientIpDisplay').innerText = `${data.client_ip} (${detectedIsp})`;
-          return;
-        }
-      } catch (e) {}
+/* ---------- CDN radar (real timings only) ---------- */
+async function runCdnRadar(){
+  const ping = async url => {
+    const t = performance.now();
+    try{
+      await fetch(`${url}?t=${Date.now()}`, {mode:'no-cors', cache:'no-store'});
+      return `${Math.round(performance.now()-t)} ms`;
+    }catch(e){ return 'Blocked'; }
+  };
+  $('pingCf').innerText  = await ping('https://cloudflare.com/cdn-cgi/trace');
+  $('pingGg').innerText  = await ping('https://www.google.com/generate_204');
+  $('pingAws').innerText = await ping('https://aws.amazon.com/favicon.ico');
+  $('pingAz').innerText  = await ping('https://azure.microsoft.com/favicon.ico');
+}
+runCdnRadar();
 
-      try {
-        const pub = await fetch('https://ipapi.co/json/');
-        const d = await pub.json();
-        detectedIsp = d.org || d.asn || 'Broadband';
-        document.getElementById('clientIpDisplay').innerText = `${d.ip} (${detectedIsp})`;
-      } catch (err) {
-        document.getElementById('clientIpDisplay').innerText = 'Public IP Active';
+/* ---------- Rooms ---------- */
+let lastDownMbps = 0;
+$('addRoomBtn').addEventListener('click', () => {
+  const room = prompt('Room name (e.g., Bedroom, Lounge, Kitchen):', 'Bedroom');
+  if(!room) return;
+  const base = lastDownMbps || 30;
+  const score = Math.min(Math.round((base/50)*100),100);
+  const pill = document.createElement('div');
+  pill.className = 'room-tag';
+  const span = document.createElement('span'); span.textContent = room;
+  const st = document.createElement('strong'); st.textContent = `${score}%`;
+  st.style.color = score > 70 ? 'var(--green)' : 'var(--amber)';
+  pill.append(span, st);
+  $('roomPills').appendChild(pill);
+});
+
+/* ---------- Speed test ---------- */
+const startBtn = $('startBtn'), speedNumber = $('speedNumber'), speedPhase = $('speedPhase'), chartStage = $('chartStage');
+const MBIT = 1e6; // 1 Mbps = 1,000,000 bits/sec
+
+startBtn.addEventListener('click', async () => {
+  startBtn.disabled = true;
+  speedChart.data.datasets[0].data = Array(30).fill(0); speedChart.update();
+
+  // Stage 1: idle latency
+  speedPhase.innerText = 'STAGE 1: LATENCY';
+  chartStage.innerText = 'Measuring Ping';
+  const idleSamples = [];
+  for(let i=0;i<6;i++){
+    const s = performance.now();
+    try{
+      await fetch(`https://cloudflare.com/cdn-cgi/trace?nocache=${Date.now()}_${i}`, {mode:'no-cors', cache:'no-store'});
+      idleSamples.push(performance.now()-s);
+    }catch(e){}
+    await new Promise(r => setTimeout(r,60));
+  }
+  const idleAvg = idleSamples.length ? idleSamples.reduce((a,b)=>a+b,0)/idleSamples.length : 0;
+  const jitter = idleSamples.length ? Math.max(...idleSamples)-Math.min(...idleSamples) : 0;
+  $('idlePing').innerText = idleSamples.length ? `${idleAvg.toFixed(0)} ms` : 'N/A';
+  $('jitterVal').innerText = idleSamples.length ? `${jitter.toFixed(1)} ms` : 'N/A';
+
+  // Stage 2: download
+  speedPhase.innerText = 'STAGE 2: DOWNLOAD';
+  chartStage.innerText = 'Downloading';
+  const TOTAL = 9000, WARMUP = 2000, STREAMS = 3;
+  let totalBytes = 0, active = true, loadedPings = [], hist = [];
+  let stableStart = null, stableBytes0 = 0;
+  const t0 = performance.now();
+  let lastT = t0, lastB = 0;
+
+  const pingTimer = setInterval(async () => {
+    if(!active) return;
+    const p = performance.now();
+    try{
+      await fetch(`https://cloudflare.com/cdn-cgi/trace?lp=${Date.now()}`, {mode:'no-cors', cache:'no-store'});
+      loadedPings.push(performance.now()-p);
+    }catch(e){}
+  }, 400);
+
+  async function readStream(url){
+    const resp = await fetch(url, {cache:'no-store'});
+    const reader = resp.body.getReader();
+    while(active){
+      const {done, value} = await reader.read();
+      if(done) break;
+      totalBytes += value.length;
+    }
+    try{ reader.cancel(); }catch(e){}
+  }
+
+  async function worker(id){
+    while(active){
+      try{
+        await readStream(`https://speed.cloudflare.com/__down?bytes=10000000&nocache=${Date.now()}_${id}`);
+      }catch(err){
+        try{
+          await readStream(`https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?rnd=${Date.now()}_${id}`);
+        }catch(e2){ await new Promise(r => setTimeout(r,200)); }
       }
     }
-    loadNetworkIntel();
+  }
+  const workers = Array.from({length:STREAMS}, (_,i) => worker(i));
 
-    async function runCdnRadar() {
-      const pingTest = async (url) => {
-        const start = performance.now();
-        try {
-          await fetch(`${url}?t=${Date.now()}`, { mode: 'no-cors', cache: 'no-store' });
-          return Math.round(performance.now() - start);
-        } catch (e) {
-          return Math.round(20 + Math.random() * 15);
-        }
-      };
-
-      const cf = await pingTest('https://cloudflare.com/cdn-cgi/trace');
-      document.getElementById('pingCf').innerText = `${cf} ms`;
-
-      const gg = await pingTest('https://www.google.com/generate_204');
-      document.getElementById('pingGg').innerText = `${gg} ms`;
-
-      const aws = await pingTest('https://aws.amazon.com/favicon.ico');
-      document.getElementById('pingAws').innerText = `${aws} ms`;
-
-      const az = await pingTest('https://azure.microsoft.com/favicon.ico');
-      document.getElementById('pingAz').innerText = `${az} ms`;
+  const ui = setInterval(() => {
+    const now = performance.now(), since = now - t0;
+    if(since < WARMUP){ speedPhase.innerText = 'STABILIZING...'; lastB = totalBytes; lastT = now; return; }
+    if(stableStart === null){
+      stableStart = now; stableBytes0 = totalBytes; lastB = totalBytes; lastT = now;
+      speedPhase.innerText = 'TESTING DOWNLOAD'; return;
     }
-    runCdnRadar();
+    const sec = (now-lastT)/1000;
+    if(sec > 0){
+      const inst = ((totalBytes-lastB)*8/MBIT)/sec;
+      hist.push(inst); if(hist.length > 5) hist.shift();
+      const smooth = hist.reduce((a,b)=>a+b,0)/hist.length;
+      speedNumber.innerText = smooth.toFixed(1);
+      drawGauge(smooth, Math.max(smooth*1.4, 50));
+      const d = speedChart.data.datasets[0].data; d.shift(); d.push(smooth);
+      speedChart.update('none');
+      lastT = now; lastB = totalBytes;
+    }
+    if(since >= TOTAL) active = false;
+  }, 250);
 
-    document.getElementById('addRoomBtn').addEventListener('click', () => {
-      const room = prompt('Enter Room Name (e.g., Bedroom, Lounge, Kitchen):', 'Bedroom');
-      if (room) {
-        const currentSpeed = parseFloat(document.getElementById('speedNumber').innerText) || 30;
-        const score = Math.min(Math.round((currentSpeed / 50) * 100), 100);
-        const pill = document.createElement('div');
-        pill.className = 'room-tag';
-        pill.innerHTML = `<span>${room}</span><strong style="color: ${score > 70 ? 'var(--green)' : 'var(--amber)'};">${score}%</strong>`;
-        document.getElementById('roomPills').appendChild(pill);
-      }
-    });
+  await new Promise(r => setTimeout(r, TOTAL + 250));
+  active = false;
+  clearInterval(ui); clearInterval(pingTimer);
+  await Promise.allSettled(workers);
 
-    const startBtn = document.getElementById('startBtn');
-    const speedNumber = document.getElementById('speedNumber');
-    const speedPhase = document.getElementById('speedPhase');
-    const chartStage = document.getElementById('chartStage');
+  const stableSec = ((performance.now() - (stableStart ?? t0))/1000) || 1;
+  const finalDown = Math.max(((totalBytes - stableBytes0)*8/MBIT)/stableSec, 0);
+  lastDownMbps = finalDown;
+  $('downloadSpeed').innerText = `${finalDown.toFixed(1)} Mbps`;
 
-    startBtn.addEventListener('click', async () => {
-      startBtn.disabled = true;
+  const loadedAvg = loadedPings.length ? loadedPings.reduce((a,b)=>a+b,0)/loadedPings.length : null;
+  let grade = '--', gradeColor = 'var(--muted)', bloatDelta = 0;
+  if(loadedAvg !== null && idleSamples.length){
+    $('loadedPing').innerText = `${loadedAvg.toFixed(0)} ms`;
+    bloatDelta = loadedAvg - idleAvg;
+    grade = 'A+'; gradeColor = 'var(--green)';
+    if(bloatDelta > 30){ grade='B'; }
+    if(bloatDelta > 70){ grade='C'; gradeColor='var(--amber)'; }
+    if(bloatDelta > 150){ grade='D'; gradeColor='var(--red)'; }
+    if(bloatDelta > 280){ grade='F'; gradeColor='var(--red)'; }
+  } else { $('loadedPing').innerText = 'N/A'; }
+  const bloatEl = $('bloatGrade'); bloatEl.innerText = grade; bloatEl.style.color = gradeColor;
 
-      speedChart.data.datasets[0].data = Array(30).fill(0);
-      speedChart.update();
+  // Stage 3: upload
+  speedPhase.innerText = 'STAGE 3: UPLOAD';
+  chartStage.innerText = 'Uploading';
+  const payload = new Uint8Array(1024*1024);
+  for(let i=0;i<payload.length;i+=65536) crypto.getRandomValues(payload.subarray(i, Math.min(i+65536, payload.length)));
+  let upBytes = 0, upOk = 0;
+  const upStart = performance.now();
+  for(let u=0; u<4; u++){
+    const ps = performance.now();
+    try{
+      await fetch('https://speed.cloudflare.com/__up', {method:'POST', body:payload, headers:{'Content-Type':'application/octet-stream'}});
+      upBytes += payload.length; upOk++;
+      const cur = (payload.length*8/MBIT)/((performance.now()-ps)/1000);
+      speedNumber.innerText = cur.toFixed(1);
+      drawGauge(cur, Math.max(cur*1.5, 30));
+    }catch(e){}
+  }
+  let finalUp = null;
+  if(upOk > 0){
+    finalUp = (upBytes*8/MBIT)/(((performance.now()-upStart)/1000) || 1);
+    $('uploadSpeed').innerText = `${finalUp.toFixed(1)} Mbps`;
+  } else {
+    $('uploadSpeed').innerText = 'Blocked';
+  }
+  const upText = finalUp !== null ? `${finalUp.toFixed(1)} Mbps` : 'N/A';
 
-      // STAGE 1: REAL IDLE PING TO CLOUDFLARE EDGE
-      speedPhase.innerText = 'STAGE 1: REAL LINE LATENCY';
-      chartStage.innerText = 'Measuring Ping to Edge';
+  // ISP / throttle panel
+  const tn = $('throttleNotice'), tb = $('throttleBadge');
+  if(bloatDelta > 100){
+    tb.innerText = 'QUEUE DELAY';
+    tn.className = 'throttle throttle-warn';
+    tn.innerHTML = `<span>⚠️ <strong>Bufferbloat Spike:</strong> Load par ping badh rahi hai (+${bloatDelta.toFixed(0)} ms).</span><strong>Queue Lag</strong>`;
+  } else {
+    tb.innerText = 'LINE VERIFIED';
+    tn.className = 'throttle throttle-clean';
+    tn.innerHTML = `<span>✅ <strong>Clean Routing:</strong> Koi bada bottleneck detect nahi hua.</span><strong>OK</strong>`;
+  }
 
-      let idleSamples = [];
-      for (let i = 0; i < 6; i++) {
-        const start = performance.now();
-        try {
-          await fetch(`https://cloudflare.com/cdn-cgi/trace?nocache=${Date.now()}_${i}`, { mode: 'no-cors', cache: 'no-store' });
-          idleSamples.push(performance.now() - start);
-        } catch (e) {
-          idleSamples.push(22);
-        }
-        await new Promise(r => setTimeout(r, 60));
-      }
+  // Application suitability (computed from results)
+  const setApp = (id, text, cls) => { const el = $(id); el.innerText = text; el.className = cls; };
+  const pingOk = idleSamples.length ? idleAvg : 999;
+  setApp('wfhZoom', finalDown >= 5 && pingOk < 120 && jitter < 40 ? 'Ready' : 'Weak', finalDown >= 5 && pingOk < 120 && jitter < 40 ? 'pill-green' : 'pill-amber');
+  setApp('wfhVpn',  pingOk < 100 ? 'Stable' : 'Unstable', pingOk < 100 ? 'pill-green' : 'pill-amber');
+  setApp('wfhGit',  (finalUp ?? 0) >= 3 ? 'Good' : 'Slow', (finalUp ?? 0) >= 3 ? 'pill-green' : 'pill-amber');
+  const gameGood = pingOk < 60 && jitter < 20 && bloatDelta < 70;
+  setApp('gameTier', gameGood ? 'Good' : (pingOk < 100 ? 'Okay' : 'Poor'), gameGood ? 'pill-green' : (pingOk < 100 ? 'pill-amber' : 'pill-red'));
 
-      const idleAvg = idleSamples.reduce((a, b) => a + b, 0) / idleSamples.length;
-      const jitter = Math.max(...idleSamples) - Math.min(...idleSamples);
-      document.getElementById('idlePing').innerText = `${idleAvg.toFixed(1)} ms`;
-      document.getElementById('jitterVal').innerText = `${jitter.toFixed(1)} ms`;
+  // AI doctor
+  let dx = `🩺 <strong>Connection Diagnosis:</strong><br>`;
+  dx += `• Download: <strong>${finalDown.toFixed(1)} Mbps</strong> | Upload: <strong>${upText}</strong><br>`;
+  dx += `• Ping: <strong>${idleSamples.length ? idleAvg.toFixed(0)+' ms' : 'N/A'}</strong> (Jitter: ${idleSamples.length ? jitter.toFixed(1)+' ms' : 'N/A'}), Bufferbloat <strong>${grade}</strong>${loadedAvg !== null ? ` (+${bloatDelta.toFixed(0)} ms load par)` : ''}.<br><br>`;
+  dx += bloatDelta > 80
+    ? `🔍 <strong>Root Cause:</strong> Line par bufferbloat hai. Heavy download ke dauran gaming ya video call mein lag aa sakta hai. Router mein SQM / QoS configure karein.`
+    : `🎉 <strong>Verdict:</strong> Response rate theek hai. HD streaming, calls aur casual gaming ke liye connection reliable hai.`;
+  $('aiDoctorOutput').innerHTML = dx;
 
-      // STAGE 2: REAL INTERNET PUBLIC CDN DOWNLOAD (NO LOCALHOST BUFFER)
-      speedPhase.innerText = 'STAGE 2: DOWNLINK SATURATION';
-      chartStage.innerText = 'Downloading from Anycast Edge';
+  // Share card
+  $('cardDown').innerText = finalDown.toFixed(1);
+  $('cardUp').innerText = upText;
+  $('cardPing').innerText = idleSamples.length ? `${idleAvg.toFixed(0)} ms` : 'N/A';
+  $('cardBloat').innerText = grade;
+  $('cardIsp').innerText = `ISP: ${detectedIsp}`;
+  $('cardTier').innerText = finalDown > 40 ? 'HIGH-SPEED TIER' : 'STANDARD TIER';
 
-      const TOTAL_DURATION_MS = 9000;
-      const WARMUP_TIME_MS = 2000;
-      const NUM_STREAMS = 3;
+  speedPhase.innerText = 'TEST COMPLETE';
+  chartStage.innerText = 'Finished';
+  drawGauge(Math.min(finalDown, 100), Math.max(finalDown*1.4, 50));
+  speedNumber.innerText = finalDown.toFixed(1);
+  startBtn.disabled = false;
+  startBtn.innerText = 'RE-RUN TEST';
+});
 
-      let totalDownloadedBytes = 0;
-      let active = true;
-      let loadedPingSamples = [];
-      let speedHistory = [];
-      let stableBytesStart = 0;
-      let stableTimeStart = null;
-
-      const testStartTime = performance.now();
-      let lastCheckTime = testStartTime;
-      let lastBytes = 0;
-
-      const pingInterval = setInterval(async () => {
-        if (!active) return;
-        const pStart = performance.now();
-        try {
-          await fetch(`https://cloudflare.com/cdn-cgi/trace?lp=${Date.now()}`, { mode: 'no-cors', cache: 'no-store' });
-          loadedPingSamples.push(performance.now() - pStart);
-        } catch (e) {}
-      }, 400);
-
-      // Har stream internet se 10MB chunk mangwayegi (Real public pipe)
-      async function runWorker(workerId) {
-        while (active) {
-          const cdnTarget = `https://speed.cloudflare.com/__down?bytes=10000000&nocache=${Date.now()}_${workerId}`;
-          try {
-            const resp = await fetch(cdnTarget, { cache: 'no-store' });
-            const reader = resp.body.getReader();
-            while (active) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              totalDownloadedBytes += value.length;
-            }
-          } catch (err) {
-            // Fallback agar ISP/Firewall block kare
-            try {
-              const fb = await fetch(`https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?rnd=${Date.now()}_${workerId}`, { cache: 'no-store' });
-              const r = fb.body.getReader();
-              while (active) {
-                const { done, value } = await r.read();
-                if (done) break;
-                totalDownloadedBytes += value.length;
-              }
-            } catch(e2) {
-              await new Promise(r => setTimeout(r, 200));
-            }
-          }
-        }
-      }
-
-      const workers = Array.from({ length: NUM_STREAMS }, (_, i) => runWorker(i));
-
-      const uiInterval = setInterval(() => {
-        const now = performance.now();
-        const timeSinceStart = now - testStartTime;
-
-        if (timeSinceStart < WARMUP_TIME_MS) {
-          speedPhase.innerText = 'STABILIZING STREAM...';
-          lastBytes = totalDownloadedBytes;
-          lastCheckTime = now;
-          return;
-        }
-
-        if (!stableTimeStart) {
-          stableTimeStart = now;
-          stableBytesStart = totalDownloadedBytes;
-          lastBytes = totalDownloadedBytes;
-          lastCheckTime = now;
-          speedPhase.innerText = 'TESTING REAL DOWNLOAD';
-          return;
-        }
-
-        const windowSec = (now - lastCheckTime) / 1000;
-        const chunkBytes = totalDownloadedBytes - lastBytes;
-
-        if (windowSec > 0) {
-          const instantMbps = ((chunkBytes * 8) / (1024 * 1024)) / windowSec;
-          speedHistory.push(instantMbps);
-          if (speedHistory.length > 5) speedHistory.shift();
-
-          const smoothMbps = speedHistory.reduce((a, b) => a + b, 0) / speedHistory.length;
-          speedNumber.innerText = smoothMbps.toFixed(1);
-          drawGauge(smoothMbps, Math.max(smoothMbps * 1.4, 50));
-
-          speedChart.data.datasets[0].data.shift();
-          speedChart.data.datasets[0].data.push(smoothMbps);
-          speedChart.update('none');
-
-          lastCheckTime = now;
-          lastBytes = totalDownloadedBytes;
-        }
-
-        if (timeSinceStart >= TOTAL_DURATION_MS) {
-          active = false;
-        }
-      }, 250);
-
-      await new Promise(resolve => setTimeout(resolve, TOTAL_DURATION_MS + 250));
-      clearInterval(uiInterval);
-      clearInterval(pingInterval);
-      await Promise.allSettled(workers);
-
-      const stableDurationSec = ((performance.now() - (stableTimeStart || testStartTime)) / 1000) || 1;
-      const stableBytes = totalDownloadedBytes - stableBytesStart;
-      const finalDownloadMbps = Math.max(((stableBytes * 8) / (1024 * 1024) / stableDurationSec), 0.1);
-      document.getElementById('downloadSpeed').innerText = `${finalDownloadMbps.toFixed(1)} Mbps`;
-
-      const loadedAvg = loadedPingSamples.length 
-        ? loadedPingSamples.reduce((a, b) => a + b, 0) / loadedPingSamples.length 
-        : idleAvg + 8;
-
-      document.getElementById('loadedPing').innerText = `${loadedAvg.toFixed(1)} ms`;
-      const bloatDelta = loadedAvg - idleAvg;
-      
-      let grade = 'A+';
-      let gradeClass = 'pill-green';
-      if (bloatDelta > 30) { grade = 'B'; gradeClass = 'pill-green'; }
-      if (bloatDelta > 70) { grade = 'C'; gradeClass = 'pill-amber'; }
-      if (bloatDelta > 150) { grade = 'D'; gradeClass = 'pill-red'; }
-      if (bloatDelta > 280) { grade = 'F'; gradeClass = 'pill-red'; }
-      
-      const bloatEl = document.getElementById('bloatGrade');
-      bloatEl.innerText = `Grade ${grade}`;
-      bloatEl.className = gradeClass;
-
-      // STAGE 3: REAL UPLOAD (To Cloudflare Anycast Ingest)
-      speedPhase.innerText = 'STAGE 3: TESTING UPLOAD';
-      chartStage.innerText = 'Uploading to Edge Sink';
-
-      const payload = new Uint8Array(1024 * 1024); // 1MB chunks
-      crypto.getRandomValues(payload.subarray(0, 1024));
-
-      let totalUploadedBytes = 0;
-      const upStart = performance.now();
-
-      for (let u = 0; u < 4; u++) {
-        const postStart = performance.now();
-        try {
-          await fetch('https://speed.cloudflare.com/__up', {
-            method: 'POST',
-            body: payload,
-            headers: { 'Content-Type': 'application/octet-stream' }
-          });
-          totalUploadedBytes += payload.length;
-          const curUpMbps = ((payload.length * 8) / (1024 * 1024) / ((performance.now() - postStart) / 1000));
-          speedNumber.innerText = curUpMbps.toFixed(1);
-          drawGauge(curUpMbps, Math.max(curUpMbps * 1.5, 30));
-        } catch (e) {
-          // If external upload blocked, use realistic wireline ratio
-          totalUploadedBytes += (payload.length * 0.5);
-        }
-      }
-
-      const upTotalSec = ((performance.now() - upStart) / 1000) || 1;
-      const finalUploadMbps = ((totalUploadedBytes * 8) / (1024 * 1024) / upTotalSec) || (finalDownloadMbps * 0.42);
-      document.getElementById('uploadSpeed').innerText = `${finalUploadMbps.toFixed(1)} Mbps`;
-
-      // ISP Throttling Check
-      const throttleNotice = document.getElementById('throttleNotice');
-      const throttleBadge = document.getElementById('throttleBadge');
-
-      if (bloatDelta > 100) {
-        throttleBadge.innerText = 'QUEUE DELAY';
-        throttleBadge.style.color = '#ef4444';
-        throttleNotice.className = 'throttling-box throttle-warn';
-        throttleNotice.innerHTML = `<span>⚠️ <strong>Bufferbloat Spike:</strong> Heavy network load par ping badh raha hai (+${bloatDelta.toFixed(1)}ms).</span><strong>Queue Lag</strong>`;
-      } else {
-        throttleBadge.innerText = 'LINE VERIFIED';
-        throttleBadge.style.color = '#10b981';
-        throttleNotice.className = 'throttling-box throttle-clean';
-        throttleNotice.innerHTML = `<span>✅ <strong>Clean Routing:</strong> Koi artificial bottleneck ya capping detect nahi hui. Line smooth chal rahi hai.</span><strong>100% Real</strong>`;
-      }
-
-      // AI Doctor Diagnosis
-      const aiDoctorOutput = document.getElementById('aiDoctorOutput');
-      let diagnosis = `🩺 <strong>Actual Connection Diagnosis:</strong><br>`;
-      diagnosis += `• Real Download: <strong>${finalDownloadMbps.toFixed(1)} Mbps</strong> | Real Upload: <strong>${finalUploadMbps.toFixed(1)} Mbps</strong><br>`;
-      diagnosis += `• Ping: <strong>${idleAvg.toFixed(1)} ms</strong> (Jitter: ${jitter.toFixed(1)} ms) with <strong>Grade ${grade}</strong> Bufferbloat (+${bloatDelta.toFixed(1)} ms under load).<br><br>`;
-
-      if (bloatDelta > 80) {
-        diagnosis += `🔍 <strong>Root Cause:</strong> Line par bufferbloat hai. Jab koi heavy video ya download chalayega toh gaming ya video call mein lag aa sakta hai. Router mein SQM configure karein.`;
-      } else {
-        diagnosis += `🎉 <strong>Verdict:</strong> Aapki line ka response rate bilkul clean hai. HD video streaming, voice calls aur casual gaming ke liye yeh connection reliable hai.`;
-      }
-
-      aiDoctorOutput.innerHTML = diagnosis;
-
-      document.getElementById('cardDown').innerText = finalDownloadMbps.toFixed(1);
-      document.getElementById('cardUp').innerText = `${finalUploadMbps.toFixed(1)} Mbps`;
-      document.getElementById('cardPing').innerText = `${idleAvg.toFixed(1)} ms`;
-      document.getElementById('cardBloat').innerText = `Grade ${grade}`;
-      document.getElementById('cardIsp').innerText = `ISP: ${detectedIsp}`;
-      document.getElementById('cardTier').innerText = finalDownloadMbps > 40 ? 'HIGH-SPEED TIER' : 'STANDARD TIER';
-
-      speedPhase.innerText = 'DIAGNOSTIC COMPLETE';
-      chartStage.innerText = 'Finished';
-      drawGauge(0);
-      speedNumber.innerText = finalDownloadMbps.toFixed(1);
-      startBtn.disabled = false;
-      startBtn.innerText = 'RE-RUN ACCURATE TEST';
-    });
-
-    document.getElementById('shareCardBtn').addEventListener('click', async () => {
-      const cardEl = document.getElementById('shareableCard');
-      cardEl.style.display = 'block';
-      try {
-        const canvas = await html2canvas(cardEl, { backgroundColor: '#090e1a', scale: 2 });
-        const img = canvas.toDataURL("image/png");
-        const a = document.createElement('a');
-        a.href = img;
-        a.download = `WiFi_Speed_Card_${Date.now()}.png`;
-        a.click();
-      } catch (err) {
-        alert('Please run a test first!');
-      } finally {
-        cardEl.style.display = 'none';
-      }
-    });
-  </script>
+/* ---------- Speed card download ---------- */
+$('shareCardBtn').addEventListener('click', async () => {
+  closeMenu();
+  if(!lastDownMbps){ alert('Pehle speed test chalayein!'); return; }
+  const el = $('shareableCard');
+  el.style.display = 'block';
+  try{
+    const canvas = await html2canvas(el, {backgroundColor:'#090e1a', scale:2});
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `WiFi_Speed_Card_${Date.now()}.png`;
+    a.click();
+  }catch(err){ alert('Card ban nahi saka, dobara try karein.'); }
+  finally{ el.style.display = 'none'; }
+});
+</script>
 </body>
 </html>
