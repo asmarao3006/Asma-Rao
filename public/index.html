@@ -19,46 +19,24 @@
   body{
     background:radial-gradient(circle at 50% 0%,#172554 0%,#030712 70%) fixed;
     color:var(--text); min-height:100vh; min-height:100dvh;
-    padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+    padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
   }
   .app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 
-  /* Header */
   header{
-    display:flex;justify-content:space-between;align-items:center;gap:10px;
-    padding:12px 14px;background:var(--card);border:1px solid var(--border);
-    border-radius:18px;backdrop-filter:blur(16px);position:relative;z-index:30;
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    background:var(--card);border:1px solid var(--border);border-radius:18px;backdrop-filter:blur(16px);
   }
-  .brand{display:flex;align-items:center;gap:10px;min-width:0}
   .brand-icon{width:40px;height:40px;flex:none;border-radius:12px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 18px rgba(0,242,254,.35)}
-  .brand h1{font-size:18px;font-weight:800;background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
-  .brand p{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .dots-btn{
-    width:44px;height:44px;flex:none;border-radius:12px;border:1px solid var(--border);
-    background:rgba(255,255,255,.06);color:#fff;font-size:22px;font-weight:800;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;line-height:1;
-  }
-  .dots-btn:active{background:rgba(255,255,255,.14)}
+  header h1{font-size:18px;font-weight:800;background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  header p{font-size:11px;color:var(--muted)}
 
-  /* Dropdown menu */
-  .menu{
-    position:absolute;top:calc(100% + 8px);right:0;width:min(280px,86vw);
-    background:#0b1222;border:1px solid var(--border);border-radius:16px;
-    box-shadow:0 18px 40px rgba(0,0,0,.6);padding:6px;display:none;
-  }
-  .menu.open{display:block}
-  .menu button{
-    width:100%;display:flex;align-items:center;gap:12px;padding:13px 12px;
-    background:none;border:none;color:#fff;font-size:14px;font-weight:600;text-align:left;
-    border-radius:12px;cursor:pointer;
-  }
-  .menu button:active,.menu button:hover{background:rgba(255,255,255,.08)}
-  .menu .ic{width:28px;text-align:center;font-size:18px}
-  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:20}
-  .backdrop.show{display:block}
-
-  /* Main card */
   .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:18px;backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .card-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+  .card-title h3{font-size:15px;font-weight:700}
+  .badge{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(0,242,254,.1);color:var(--cyan);border:1px solid rgba(0,242,254,.2);white-space:nowrap}
+
+  /* Tester */
   .gauge-wrap{display:flex;flex-direction:column;align-items:center;text-align:center}
   canvas#speedGauge{width:100%;max-width:340px;aspect-ratio:340/210;height:auto;display:block}
   .speed-number{
@@ -68,7 +46,6 @@
   }
   .unit{font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-top:-2px}
   .speed-phase{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin:6px 0 16px;min-height:16px}
-
   .btn-test{
     width:100%;padding:17px;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;
     background:linear-gradient(135deg,var(--cyan),var(--blue));color:#030712;
@@ -76,31 +53,12 @@
   }
   .btn-test:active:not(:disabled){transform:scale(.98)}
   .btn-test:disabled{opacity:.55;cursor:not-allowed}
-
   .metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:12px}
   .metric{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;min-width:0}
   .metric small{display:block;font-size:9.5px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;letter-spacing:.3px}
   .metric strong{font-family:'JetBrains Mono',monospace;font-size:clamp(12px,3.8vw,15px);color:#fff;white-space:nowrap}
 
-  /* Bottom sheet */
-  .sheet{
-    position:fixed;left:0;right:0;bottom:0;z-index:40;
-    background:#0a1020;border-top:1px solid var(--border);
-    border-radius:24px 24px 0 0;max-height:88vh;max-height:88dvh;
-    transform:translateY(105%);transition:transform .28s ease;
-    display:flex;flex-direction:column;
-    padding-bottom:env(safe-area-inset-bottom);
-  }
-  .sheet.open{transform:translateY(0)}
-  .sheet-head{display:flex;justify-content:space-between;align-items:center;padding:16px 18px 10px}
-  .sheet-head h3{font-size:16px;font-weight:700}
-  .sheet-close{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.06);color:#fff;font-size:16px;cursor:pointer}
-  .sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 18px 22px;max-width:520px;width:100%;margin:0 auto}
-  .panel{display:none}
-  .panel.active{display:block}
-
-  .badge{font-family:'JetBrains Mono',monospace;font-size:11px;padding:3px 8px;border-radius:6px;background:rgba(0,242,254,.1);color:var(--cyan);border:1px solid rgba(0,242,254,.2);display:inline-block;margin-bottom:10px}
-
+  /* Features below tester */
   .ai-box{background:linear-gradient(135deg,rgba(168,85,247,.14),rgba(0,242,254,.08));border:1px solid rgba(168,85,247,.3);border-radius:16px;padding:16px}
   .ai-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
   .ai-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:17px}
@@ -117,7 +75,12 @@
 
   .room-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
   .room-tag{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:12px;display:flex;gap:8px;align-items:center}
-  .btn-outline{background:none;border:1px dashed var(--cyan);color:var(--cyan);padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+  .btn-outline{background:none;border:1px dashed var(--cyan);color:var(--cyan);padding:12px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+  .btn-share{
+    width:100%;padding:14px;border-radius:14px;border:1px solid var(--border);
+    background:rgba(255,255,255,.06);color:#fff;font-size:14px;font-weight:700;cursor:pointer;
+  }
+  .btn-share:active{background:rgba(255,255,255,.14)}
 
   .info-row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px}
   .info-row:last-child{border-bottom:none}
@@ -139,28 +102,14 @@
 
 <div class="app">
   <header>
-    <div class="brand">
-      <div class="brand-icon">⚡</div>
-      <div style="min-width:0">
-        <h1>WiFi Speed Tester</h1>
-        <p>Real-World Network Analyzer</p>
-      </div>
-    </div>
-    <button class="dots-btn" id="dotsBtn" aria-label="Menu" aria-expanded="false">⋮</button>
-
-    <div class="menu" id="menu">
-      <button data-panel="pAi"><span class="ic">🤖</span>AI Network Doctor</button>
-      <button data-panel="pIsp"><span class="ic">🛡️</span>ISP Fast-Lane Audit</button>
-      <button data-panel="pCdn"><span class="ic">🌐</span>Multi-CDN Latency Radar</button>
-      <button data-panel="pApps"><span class="ic">💼</span>Application Suitability</button>
-      <button data-panel="pChart"><span class="ic">📈</span>Bandwidth Curve</button>
-      <button data-panel="pRoom"><span class="ic">🏠</span>Room Coverage Tracker</button>
-      <button data-panel="pNet"><span class="ic">📡</span>Connection Details</button>
-      <button id="shareCardBtn"><span class="ic">📸</span>Generate Speed Card</button>
+    <div class="brand-icon">⚡</div>
+    <div>
+      <h1>WiFi Speed Tester</h1>
+      <p>Real-World Network Analyzer</p>
     </div>
   </header>
 
-  <!-- FRONT PAGE: tester -->
+  <!-- 1) SPEED CHECKER (top) -->
   <main class="card gauge-wrap">
     <canvas id="speedGauge"></canvas>
     <div class="speed-number" id="speedNumber">0.0</div>
@@ -180,81 +129,89 @@
       <div class="metric"><small>Bufferbloat</small><strong id="bloatGrade">--</strong></div>
     </div>
   </main>
-</div>
 
-<div class="backdrop" id="backdrop"></div>
-
-<!-- Bottom sheet with all extra points -->
-<section class="sheet" id="sheet" aria-hidden="true">
-  <div class="sheet-head">
-    <h3 id="sheetTitle">Details</h3>
-    <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
-  </div>
-  <div class="sheet-body">
-
-    <div class="panel" id="pAi" data-title="🤖 AI Network Doctor">
-      <div class="ai-box">
-        <div class="ai-head">
-          <div class="ai-avatar">🤖</div>
-          <div>
-            <h4 style="font-size:14px;font-weight:700">AI Network Diagnostic Doctor</h4>
-            <p style="font-size:11px;color:var(--muted)">Real-World Root Cause Analysis</p>
-          </div>
+  <!-- 2) FEATURES (scroll down) -->
+  <section class="card">
+    <div class="ai-box">
+      <div class="ai-head">
+        <div class="ai-avatar">🤖</div>
+        <div>
+          <h4 style="font-size:14px;font-weight:700">AI Network Doctor</h4>
+          <p style="font-size:11px;color:var(--muted)">Real-World Root Cause Analysis</p>
         </div>
-        <div class="ai-text" id="aiDoctorOutput">Ready to test. Is test mein data aapke computer ki RAM se nahi balki bahar internet se real chunks transfer karega taaki accurate result aaye.</div>
       </div>
+      <div class="ai-text" id="aiDoctorOutput">Ready to test. Is test mein data aapke computer ki RAM se nahi balki bahar internet se real chunks transfer karega taaki accurate result aaye.</div>
     </div>
+  </section>
 
-    <div class="panel" id="pIsp" data-title="🛡️ ISP Fast-Lane Audit">
+  <section class="card">
+    <div class="card-title">
+      <h3>🛡️ ISP Fast-Lane Audit</h3>
       <span class="badge" id="throttleBadge">Pending</span>
-      <div id="throttleNotice" class="throttle throttle-clean">
-        <span>Awaiting test to analyze packet prioritization.</span>
-        <strong id="throttleDiff">--</strong>
-      </div>
     </div>
+    <div id="throttleNotice" class="throttle throttle-clean">
+      <span>Awaiting test to analyze packet prioritization.</span>
+      <strong>--</strong>
+    </div>
+  </section>
 
-    <div class="panel" id="pCdn" data-title="🌐 Multi-CDN Latency Radar">
+  <section class="card">
+    <div class="card-title">
+      <h3>🌐 Multi-CDN Latency Radar</h3>
       <span class="badge">Live Test</span>
-      <div class="grid2">
-        <div class="mini"><h4>Cloudflare</h4><span id="pingCf">-- ms</span></div>
-        <div class="mini"><h4>Google</h4><span id="pingGg">-- ms</span></div>
-        <div class="mini"><h4>AWS Edge</h4><span id="pingAws">-- ms</span></div>
-        <div class="mini"><h4>Microsoft Azure</h4><span id="pingAz">-- ms</span></div>
-      </div>
     </div>
+    <div class="grid2">
+      <div class="mini"><h4>Cloudflare</h4><span id="pingCf">-- ms</span></div>
+      <div class="mini"><h4>Google</h4><span id="pingGg">-- ms</span></div>
+      <div class="mini"><h4>AWS Edge</h4><span id="pingAws">-- ms</span></div>
+      <div class="mini"><h4>Microsoft Azure</h4><span id="pingAz">-- ms</span></div>
+    </div>
+  </section>
 
-    <div class="panel" id="pApps" data-title="💼 Application Suitability">
+  <section class="card">
+    <div class="card-title">
+      <h3>💼 Application Suitability</h3>
       <span class="badge">Live Rating</span>
-      <div class="grid2">
-        <div class="mini"><h4>Zoom / Teams</h4><span id="wfhZoom">--</span></div>
-        <div class="mini"><h4>VPN Stability</h4><span id="wfhVpn">--</span></div>
-        <div class="mini"><h4>Git / Repo Push</h4><span id="wfhGit">--</span></div>
-        <div class="mini"><h4>Gaming</h4><span id="gameTier">--</span></div>
-      </div>
     </div>
+    <div class="grid2">
+      <div class="mini"><h4>Zoom / Teams</h4><span id="wfhZoom">--</span></div>
+      <div class="mini"><h4>VPN Stability</h4><span id="wfhVpn">--</span></div>
+      <div class="mini"><h4>Git / Repo Push</h4><span id="wfhGit">--</span></div>
+      <div class="mini"><h4>Gaming</h4><span id="gameTier">--</span></div>
+    </div>
+  </section>
 
-    <div class="panel" id="pChart" data-title="📈 Bandwidth Saturation Curve">
+  <section class="card">
+    <div class="card-title">
+      <h3>📈 Bandwidth Curve</h3>
       <span class="badge" id="chartStage">Standby</span>
-      <div style="height:220px;position:relative"><canvas id="speedChart"></canvas></div>
     </div>
+    <div style="height:200px;position:relative"><canvas id="speedChart"></canvas></div>
+  </section>
 
-    <div class="panel" id="pRoom" data-title="🏠 Room Coverage Tracker">
-      <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px">Alag-alag kamron mein jaakar test chalayein, phir "Pin Current Room" dabayein. Isse dead-zone pata chalta hai.</p>
-      <button class="btn-outline" id="addRoomBtn">+ Pin Current Room</button>
-      <div class="room-tags" id="roomPills">
-        <div class="room-tag"><span>Main Router Area</span><strong style="color:var(--green)">100%</strong></div>
-      </div>
+  <section class="card">
+    <div class="card-title">
+      <h3>🏠 Room Coverage Tracker</h3>
     </div>
-
-    <div class="panel" id="pNet" data-title="📡 Connection Details">
-      <div class="info-row"><span>Testing Pipeline</span><strong style="color:var(--cyan)">Real Internet Anycast</strong></div>
-      <div class="info-row"><span>Connection</span><strong style="color:var(--green)">Physical WiFi / Wireline</strong></div>
-      <div class="info-row"><span>Measurement</span><strong>Direct Byte Stream</strong></div>
-      <div class="info-row"><span>Public IP &amp; ISP</span><strong id="clientIpDisplay">Detecting...</strong></div>
+    <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:12px">Alag-alag kamron mein jaakar test chalayein, phir "Pin Current Room" dabayein. Isse dead-zone pata chalta hai.</p>
+    <button class="btn-outline" id="addRoomBtn">+ Pin Current Room</button>
+    <div class="room-tags" id="roomPills">
+      <div class="room-tag"><span>Main Router Area</span><strong style="color:var(--green)">100%</strong></div>
     </div>
+  </section>
 
-  </div>
-</section>
+  <section class="card">
+    <div class="card-title">
+      <h3>📡 Connection Details</h3>
+    </div>
+    <div class="info-row"><span>Testing Pipeline</span><strong style="color:var(--cyan)">Real Internet Anycast</strong></div>
+    <div class="info-row"><span>Connection</span><strong style="color:var(--green)">Physical WiFi / Wireline</strong></div>
+    <div class="info-row"><span>Measurement</span><strong>Direct Byte Stream</strong></div>
+    <div class="info-row"><span>Public IP &amp; ISP</span><strong id="clientIpDisplay">Detecting...</strong></div>
+  </section>
+
+  <button class="btn-share" id="shareCardBtn">📸 Generate Speed Card</button>
+</div>
 
 <!-- Hidden share card -->
 <div id="shareableCard">
@@ -277,29 +234,7 @@
 </div>
 
 <script>
-/* ---------- Menu + bottom sheet ---------- */
 const $ = id => document.getElementById(id);
-const menu = $('menu'), dotsBtn = $('dotsBtn'), backdrop = $('backdrop'), sheet = $('sheet');
-
-function closeMenu(){ menu.classList.remove('open'); dotsBtn.setAttribute('aria-expanded','false'); if(!sheet.classList.contains('open')) backdrop.classList.remove('show'); }
-function openMenu(){ menu.classList.add('open'); dotsBtn.setAttribute('aria-expanded','true'); backdrop.classList.add('show'); }
-function closeSheet(){ sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); backdrop.classList.remove('show'); }
-
-function openPanel(id){
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const p = $(id); p.classList.add('active');
-  $('sheetTitle').innerText = p.dataset.title;
-  closeMenu();
-  sheet.classList.add('open'); sheet.setAttribute('aria-hidden','false'); backdrop.classList.add('show');
-  $('sheet').querySelector('.sheet-body').scrollTop = 0;
-  if(id === 'pChart') setTimeout(() => speedChart.resize(), 300);
-}
-
-dotsBtn.addEventListener('click', e => { e.stopPropagation(); menu.classList.contains('open') ? closeMenu() : openMenu(); });
-menu.querySelectorAll('button[data-panel]').forEach(b => b.addEventListener('click', () => openPanel(b.dataset.panel)));
-$('sheetClose').addEventListener('click', closeSheet);
-backdrop.addEventListener('click', () => { closeMenu(); closeSheet(); });
-document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeMenu(); closeSheet(); } });
 
 /* ---------- Chart ---------- */
 const speedChart = new Chart($('speedChart').getContext('2d'), {
@@ -543,10 +478,11 @@ startBtn.addEventListener('click', async () => {
     tn.innerHTML = `<span>✅ <strong>Clean Routing:</strong> Koi bada bottleneck detect nahi hua.</span><strong>OK</strong>`;
   }
 
-  // Application suitability (computed from results)
+  // Application suitability
   const setApp = (id, text, cls) => { const el = $(id); el.innerText = text; el.className = cls; };
   const pingOk = idleSamples.length ? idleAvg : 999;
-  setApp('wfhZoom', finalDown >= 5 && pingOk < 120 && jitter < 40 ? 'Ready' : 'Weak', finalDown >= 5 && pingOk < 120 && jitter < 40 ? 'pill-green' : 'pill-amber');
+  const zoomOk = finalDown >= 5 && pingOk < 120 && jitter < 40;
+  setApp('wfhZoom', zoomOk ? 'Ready' : 'Weak', zoomOk ? 'pill-green' : 'pill-amber');
   setApp('wfhVpn',  pingOk < 100 ? 'Stable' : 'Unstable', pingOk < 100 ? 'pill-green' : 'pill-amber');
   setApp('wfhGit',  (finalUp ?? 0) >= 3 ? 'Good' : 'Slow', (finalUp ?? 0) >= 3 ? 'pill-green' : 'pill-amber');
   const gameGood = pingOk < 60 && jitter < 20 && bloatDelta < 70;
@@ -579,7 +515,6 @@ startBtn.addEventListener('click', async () => {
 
 /* ---------- Speed card download ---------- */
 $('shareCardBtn').addEventListener('click', async () => {
-  closeMenu();
   if(!lastDownMbps){ alert('Pehle speed test chalayein!'); return; }
   const el = $('shareableCard');
   el.style.display = 'block';
